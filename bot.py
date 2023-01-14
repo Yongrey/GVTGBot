@@ -8,19 +8,18 @@ from config import bot
 import apscheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import date
+from dotenv import load_dotenv
+import os
 
-
-
-
-
-
+load_dotenv()
 scheduler = AsyncIOScheduler()
-hero = Hero('Мортираун', token='tokenexample')
-
-
+hero = Hero('Мортираун', token=os.getenv('TOKEN_GV'))
+id = -1001825622966
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
-
+updateInterval = 15
+day = date.today()
 
 async def on_startup(_):
     print('Bot is online')
@@ -33,12 +32,7 @@ async def process_start_command(message: types.Message):
 
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: types.Message):
-    await message.reply(f' 1./gvsend: Возможность просмотра последней записи дневника героя игры Годвиль ')
-
-
-
-
-
+    await message.reply(" 1./gvsend: Возможность просмотра последней записи дневника героя игры Годвиль")
 
 
 @dp.message_handler(commands=['gvsend'])
@@ -51,8 +45,8 @@ async def send_diary(chat_id: int):
                                   f'Запись из дневника: {hero.diary_last} | {hero.health}  очков здоровья. | Количество золота: {hero.gold}')
 
 
-scheduler.add_job(send_diary, IntervalTrigger(minutes=15, start_date='2023-01-09', timezone='utc'),
-                  kwargs={'chat_id': 213123123123})
+scheduler.add_job(send_diary, IntervalTrigger(minutes=updateInterval, start_date=day, timezone='utc'),
+                  kwargs={'chat_id': id})
 scheduler.start()
 
 if __name__ == '__main__':
