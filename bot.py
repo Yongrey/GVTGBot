@@ -4,15 +4,17 @@ from aiogram.utils import executor
 from config import TOKEN
 from gvapi import Hero
 import asyncio
-from aiogram import types, Dispatcher
 from config import bot
+import apscheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 
 
 
 
 
-
+scheduler = AsyncIOScheduler()
 hero = Hero('Мортираун', token='tokenexample')
 
 
@@ -34,11 +36,24 @@ async def process_help_command(message: types.Message):
     await message.reply(f' 1./gvsend: Возможность просмотра последней записи дневника героя игры Годвиль ')
 
 
+
+
+
+
+
 @dp.message_handler(commands=['gvsend'])
-async def procces_gvsend_command(message:types.Message):
-        await bot.send_message(message.chat.id, f' Запись из дневника: {hero.diary_last} | {hero.health}  очков здоровья. | Количество золота: {hero.gold}')
+async def procces_gvsend_command(message: types.Message):
+    await send_diary(message.chat.id)
 
 
+async def send_diary(chat_id: int):
+    return await bot.send_message(chat_id,
+                                  f'Запись из дневника: {hero.diary_last} | {hero.health}  очков здоровья. | Количество золота: {hero.gold}')
+
+
+scheduler.add_job(send_diary, IntervalTrigger(minutes=15, start_date='2023-01-09', timezone='utc'),
+                  kwargs={'chat_id': 213123123123})
+scheduler.start()
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=False, on_startup=on_startup)
