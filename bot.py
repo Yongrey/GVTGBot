@@ -15,7 +15,7 @@ import os
 load_dotenv()
 scheduler = AsyncIOScheduler()
 hero = Hero('Мортираун', token=os.getenv('TOKEN_GV'))
-id = -1001825622966
+id = os.getenv('CHAT_ID')
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 updateInterval = 15
